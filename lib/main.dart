@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/custom_player.dart';
+import 'package:video_player/my_player_view.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,6 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Player',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -40,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const CustomPlayer())),
+            MaterialPageRoute(builder: (context) => const MyPlayerView())),
         tooltip: 'Play',
         child: const Icon(Icons.play_arrow),
       ),
