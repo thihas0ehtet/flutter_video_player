@@ -42,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const MyPlayerView())),
+            MaterialPageRoute(builder: (context) => const CustomPlayer())),
         tooltip: 'Play',
         child: const Icon(Icons.play_arrow),
       ),

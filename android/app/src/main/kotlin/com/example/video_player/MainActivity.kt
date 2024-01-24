@@ -17,15 +17,15 @@ class MainActivity: FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-//        flutterEngine
-//            .platformViewsController
-//            .registry
-//            .registerViewFactory("NativeUI", NativeViewFactory(flutterEngine.dartExecutor.binaryMessenger,this))
-
         flutterEngine
-                .platformViewsController
-                .registry
-                .registerViewFactory("MyPlayerView", MyPlayerViewFactory(this))
+            .platformViewsController
+            .registry
+            .registerViewFactory("NativeUI", NativeViewFactory(flutterEngine.dartExecutor.binaryMessenger,this))
+
+//        flutterEngine
+//                .platformViewsController
+//                .registry
+//                .registerViewFactory("MyPlayerView", MyPlayerViewFactory(this))
     }
 
     override fun onStop() {
