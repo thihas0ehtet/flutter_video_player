@@ -9,11 +9,12 @@ class CustomPlayer extends StatefulWidget {
 
   const CustomPlayer({
     super.key,
-    // val contentUri = Uri.parse("https://storage.googleapis.com/gvabox/media/samples/stock.mp4")
     // this.streamUrl =
-    //     "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8",
+    //     "https://storage.googleapis.com/gvabox/media/samples/stock.mp4"
     this.streamUrl =
-        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8",
+    // this.streamUrl =
+    //     "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
   });
 
   @override
@@ -31,31 +32,6 @@ class _CustomPlayerState extends State<CustomPlayer>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _channel = const MethodChannel('bms_video_player');
-    // _channel.setMethodCallHandler(_handleMethod);
-  }
-
-  Future<dynamic> _handleMethod(MethodCall call) async {
-    switch (call.method) {
-      case 'fullScreen':
-        isNormalScreen = false;
-        // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-        // SystemChrome.setPreferredOrientations([
-        //   DeviceOrientation.landscapeLeft,
-        //   DeviceOrientation.landscapeRight,
-        // ]);
-        setState(() {});
-        break;
-      case 'normalScreen':
-        isNormalScreen = true;
-        // SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        //     overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
-        // SystemChrome.setPreferredOrientations([
-        //   DeviceOrientation.portraitUp,
-        //   DeviceOrientation.portraitDown,
-        // ]);
-        setState(() {});
-        break;
-    }
   }
 
   @override
@@ -96,20 +72,7 @@ class _CustomPlayerState extends State<CustomPlayer>
         height: height,
         streamUrl: widget.streamUrl);
 
-    return SizedBox(
-      height: 300,
-      child: ListView.builder(
-        itemCount: 1,
-        itemBuilder: (BuildContext context, int index) {
-          return Container(
-            width: width,
-            height: height,
-            color: Colors.black,
-            child: videoPlayer,
-          );
-        },
-      ),
-    );
+    return videoPlayer;
   }
 
   void onViewPlayerCreated(viewPlayerController) {
@@ -118,8 +81,7 @@ class _CustomPlayerState extends State<CustomPlayer>
 }
 
 class _VideoPlayerState extends State<BmsVideoPlayer> {
-  String viewType = 'NativeUI';
-  var viewPlayerController;
+  String viewType = 'PlayerView';
 
   @override
   Widget build(BuildContext context) {
@@ -135,10 +97,10 @@ class _VideoPlayerState extends State<BmsVideoPlayer> {
         viewType: viewType,
         onPlatformViewCreated: onPlatformViewCreated,
         creationParams: <String, dynamic>{
-          "x": widget.x,
-          "y": widget.y,
-          "width": widget.width,
-          "height": widget.height,
+          // "x": widget.x,
+          // "y": widget.y,
+          // "width": widget.width,
+          // "height": widget.height,
           "videoURL": widget.streamUrl
         },
         creationParamsCodec: const StandardMessageCodec(),

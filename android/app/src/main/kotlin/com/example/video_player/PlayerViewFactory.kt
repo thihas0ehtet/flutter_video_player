@@ -1,17 +1,16 @@
 package com.example.video_player
 
 import android.content.Context
-import com.google.android.exoplayer2.ExoPlayer
+import com.example.video_player.MainActivity
 import io.flutter.plugin.common.BinaryMessenger
-import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
 
 
-class NativeViewFactory(private val messenger: BinaryMessenger, private val mainActivity: MainActivity) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
+class PlayerViewFactory(private val messenger: BinaryMessenger, private val mainActivity: MainActivity) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context, viewId: Int, args: Any?): PlatformView {
         val creationParams = args as Map<String?, Any?>?
-        return NativeView(context, viewId, creationParams,messenger,mainActivity)
+        return PlayerView(context, viewId, creationParams,messenger,mainActivity)
     }
 }
