@@ -9,6 +9,7 @@ class CustomPlayer extends StatefulWidget {
 
   const CustomPlayer({
     super.key,
+    // val contentUri = Uri.parse("https://storage.googleapis.com/gvabox/media/samples/stock.mp4")
     // this.streamUrl =
     //     "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8",
     this.streamUrl =

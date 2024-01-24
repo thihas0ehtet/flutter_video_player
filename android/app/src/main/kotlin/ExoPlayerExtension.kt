@@ -44,15 +44,15 @@ fun ExoPlayer.preparePlayer(playerView: PlayerView, forceLandscape:Boolean = fal
         val normalScreenButton: ImageView = playerViewFullscreen.findViewById(R.id.exo_fullscreen_icon)
         fullScreenButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_fullscreen_open))
         normalScreenButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_fullscreen_close))
-        mainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+//        mainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         fullScreenButton.setOnClickListener {
 //            if (forceLandscape)
-//                mainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+               mainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             playerView.visibility = View.VISIBLE
             playerViewFullscreen.visibility = View.VISIBLE
             methodChannel.invokeMethod("fullScreen",0)
             PlayerView.switchTargetView(this@preparePlayer, playerView, playerViewFullscreen)
-            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT
+            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
             playerView.player = this@preparePlayer
         }
         normalScreenButton.setOnClickListener {
