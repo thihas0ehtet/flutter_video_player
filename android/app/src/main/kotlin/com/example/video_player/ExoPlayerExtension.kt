@@ -28,33 +28,50 @@ fun ExoPlayer.preparePlayer(playerView: PlayerView,player: ExoPlayer, forceLands
 //        forward10sButton.setOnClickListener{
 //            player.seekTo(player.currentPosition + 10000)
 //        }
-        val fullScreenButton: ImageView = playerView.findViewById(R.id.exo_fullscreen_icon)
-        val normalScreenButton: ImageView = playerViewFullscreen.findViewById(R.id.exo_fullscreen_icon)
-        fullScreenButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_fullscreen_open))
-        normalScreenButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_fullscreen_close))
+
+        val rewButton: ImageView = playerView.findViewById(R.id.exo_rew)
+        rewButton.setOnClickListener {
+            player.seekTo(player.currentPosition - 10000)
+        }
+
+        val ffwdButton: ImageView = playerView.findViewById(R.id.exo_ffwd)
+        ffwdButton.setOnClickListener {
+            player.seekTo(player.currentPosition + 10000)
+        }
+
+
+//        val qualityButton: ImageView = playerView.findViewById(R.id.exo_setting_icon)
+//            qualityButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_settings))
+//            qualityButton.setOnClickListener {
+//        }
+
+//        val fullScreenButton: ImageView = playerView.findViewById(R.id.exo_fullscreen_icon)
+//        val normalScreenButton: ImageView = playerViewFullscreen.findViewById(R.id.exo_fullscreen_icon)
+//        fullScreenButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_fullscreen_open))
+//        normalScreenButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_fullscreen_close))
         mainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        fullScreenButton.setOnClickListener {
-            player.seekTo(player.currentPosition + 10000)
-//            if (forceLandscape)
-//               mainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-//            playerView.visibility = View.VISIBLE
-//            playerViewFullscreen.visibility = View.VISIBLE
-//            methodChannel.invokeMethod("fullScreen",0)
-//            PlayerView.switchTargetView(this@preparePlayer, playerView, playerViewFullscreen)
-//            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
-//            playerView.player = this@preparePlayer
-        }
-        normalScreenButton.setOnClickListener {
-            player.seekTo(player.currentPosition + 10000)
+//        fullScreenButton.setOnClickListener {
+//            player.seekTo(player.currentPosition + 10000)
 ////            if (forceLandscape)
-////                mainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-//            normalScreenButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_fullscreen_close))
-//            playerView.visibility = View.VISIBLE
-//            playerViewFullscreen.visibility = View.GONE
-//            methodChannel.invokeMethod("normalScreen",0)
-//            PlayerView.switchTargetView(this@preparePlayer, playerViewFullscreen, playerView)
-//            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
-//            playerView.player = this@preparePlayer
-        }
+////               mainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+////            playerView.visibility = View.VISIBLE
+////            playerViewFullscreen.visibility = View.VISIBLE
+////            methodChannel.invokeMethod("fullScreen",0)
+////            PlayerView.switchTargetView(this@preparePlayer, playerView, playerViewFullscreen)
+////            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
+////            playerView.player = this@preparePlayer
+//        }
+//        normalScreenButton.setOnClickListener {
+//            player.seekTo(player.currentPosition + 10000)
+//////            if (forceLandscape)
+//////                mainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+////            normalScreenButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_fullscreen_close))
+////            playerView.visibility = View.VISIBLE
+////            playerViewFullscreen.visibility = View.GONE
+////            methodChannel.invokeMethod("normalScreen",0)
+////            PlayerView.switchTargetView(this@preparePlayer, playerViewFullscreen, playerView)
+////            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+////            playerView.player = this@preparePlayer
+//        }
     }
 }
