@@ -4,27 +4,27 @@ import android.app.Dialog
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.net.Uri
-import android.view.*
-import android.widget.ImageButton
+import android.view.View
 import android.widget.ImageView
 import android.widget.PopupMenu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.google.ads.interactivemedia.v3.internal.it
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.MediaItem.AdsConfiguration
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.TracksInfo
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory.AdsLoaderProvider
+import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.MediaSourceFactory
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.ads.AdPlaybackState
 import com.google.android.exoplayer2.source.ads.AdsLoader
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
+import com.google.android.exoplayer2.source.ads.AdsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionOverrides
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
@@ -37,6 +37,7 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
+
 
 internal class PlayerView(context: Context, id: Int, creationParams: Map<String?, Any?>?, messenger: BinaryMessenger,
                           private val mainActivity: MainActivity
@@ -115,8 +116,7 @@ internal class PlayerView(context: Context, id: Int, creationParams: Map<String?
         methodChannel: MethodChannel
     ) {
 
- //not working    trackSelector = DefaultTrackSelector(this, AdaptiveTrackSelection.Factory())
-
+        //      trackSelector = DefaultTrackSelector(this, AdaptiveTrackSelection.Factory())
 //        trackSelector = DefaultTrackSelector(this)
 //        // When player is initialized it'll be played with a quality of MaxVideoSize to prevent loading in 1080p from the start
 //        trackSelector!!.setParameters(
@@ -125,14 +125,17 @@ internal class PlayerView(context: Context, id: Int, creationParams: Map<String?
 
         val dataSourceFactory: DataSource.Factory =
             DefaultDataSourceFactory(view.context, Util.getUserAgent(playerView.context, "flios"))
+
         val mediaSourceFactory: MediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
-//            .setAdsLoaderProvider { unusedAdTagUri: AdsConfiguration? -> adsLoader }
+          .setAdsLoaderProvider { adsLoader }
             .setAdViewProvider(playerView)
 
         player = ExoPlayer.Builder(view.context).setMediaSourceFactory(mediaSourceFactory).build()
+
         player!!.preparePlayer(playerView, player!!, true,mainActivity,methodChannel)
         playerView.player = player
-//        adsLoader!!.setPlayer(player)
+
+        adsLoader!!.setPlayer(player)
         playerView.isControllerVisible
 
         playerView.setShowNextButton(true)
@@ -142,16 +145,20 @@ internal class PlayerView(context: Context, id: Int, creationParams: Map<String?
         playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
         playerView.controllerHideOnTouch=true
 
+
         val url = creationParams as Map<String?, Any?>?
         val contentUri = Uri.parse(url?.get("videoURL") as String?)
-        val adTagUri = Uri.parse("https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_preroll_skippable&sz=640x480&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=")
+//        val adTagUri = Uri.parse("https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_preroll_skippable&sz=640x480&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=")
+        val adTagUri = Uri.parse("https://srv.myanmarads.net/vast?z=90014")
+
 
         var adPlaybackState = AdPlaybackState(0, 500 * C.MICROS_PER_SECOND)
-//        adPlaybackState = adPlaybackState.withAdUri(0, 0, adTagUri)
+        adPlaybackState = adPlaybackState.withAdUri(0, 0, adTagUri)
 //        adPlaybackState = adPlaybackState.withAvailableAdUri(0, 0, adTagUri)
 
+
         eventListener?.onAdPlaybackState(adPlaybackState);
-        val mediaItem = MediaItem.Builder().setUri(contentUri).build()
+//        val mediaItem = MediaItem.Builder().setUri(contentUri).build()
         val contentStart = MediaItem.Builder().setUri(contentUri)
             .setAdsConfiguration(
                 AdsConfiguration.Builder(adTagUri).build()).build()
@@ -161,6 +168,8 @@ internal class PlayerView(context: Context, id: Int, creationParams: Map<String?
         player!!.repeatMode = Player.REPEAT_MODE_ALL
         player!!.prepare()
         player!!.playWhenReady = true
+
+
 
         //Listener on player
 //        player!!.addListener(object : Player.Listener {

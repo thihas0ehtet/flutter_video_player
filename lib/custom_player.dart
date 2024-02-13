@@ -160,11 +160,11 @@ class BmsVideoPlayer extends StatefulWidget {
   const BmsVideoPlayer({
     super.key,
     required this.onCreated,
-    @required this.x,
-    @required this.y,
-    @required this.width,
-    @required this.height,
-    @required this.streamUrl,
+    required this.x,
+    required this.y,
+    required this.width,
+    required this.height,
+    required this.streamUrl,
   });
 
   @override
