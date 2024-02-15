@@ -1,21 +1,12 @@
 import 'dart:io' show Platform;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class CustomPlayer extends StatefulWidget {
-  final String? streamUrl;
+  final String streamUrl;
 
-  const CustomPlayer({
-    super.key,
-    // this.streamUrl =
-    //     "https://storage.googleapis.com/gvabox/media/samples/stock.mp4"
-    this.streamUrl =
-        "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8",
-    // this.streamUrl =
-    //     "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-  });
+  const CustomPlayer({super.key, required this.streamUrl});
 
   @override
   State<CustomPlayer> createState() => _CustomPlayerState();
@@ -24,23 +15,39 @@ class CustomPlayer extends StatefulWidget {
 class _CustomPlayerState extends State<CustomPlayer>
     with WidgetsBindingObserver {
   var viewPlayerController;
-  late MethodChannel _channel;
-  bool isNormalScreen = true;
+  late MethodChannel channel;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _channel = const MethodChannel('bms_video_player');
+    channel = const MethodChannel('native_player');
+    channel.setMethodCallHandler((_) => _platformCallHandler(_, context));
+  }
+
+  static Future<dynamic> _platformCallHandler(
+      MethodCall call, BuildContext context) async {
+    switch (call.method) {
+      case 'notifyCurrentTimeStamp':
+        String data = call.arguments;
+        print('Received timestamp in second from player: $data');
+        break;
+      case 'playNextVideo':
+        String contentId = call.arguments;
+        print('Received contentID to play player: $contentId');
+        break;
+      case 'callBack':
+        Navigator.of(context).pop();
+        break;
+      default:
+        print('Unrecognized method: ${call.method}');
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
     WidgetsBinding.instance.removeObserver(this);
-    if (Platform.isIOS) {
-      _channel.invokeMethod('pauseVideo', 'pauseVideo');
-    }
   }
 
   @override
@@ -59,20 +66,10 @@ class _CustomPlayerState extends State<CustomPlayer>
 
   @override
   Widget build(BuildContext context) {
-    var x = 0.0;
-    var y = 0.0;
-    var width = 400.0;
-    var height = isNormalScreen ? 270.0 : MediaQuery.of(context).size.height;
+    NativePlayer nativePlayer = NativePlayer(
+        onCreated: onViewPlayerCreated, streamUrl: widget.streamUrl);
 
-    BmsVideoPlayer videoPlayer = BmsVideoPlayer(
-        onCreated: onViewPlayerCreated,
-        x: x,
-        y: y,
-        width: width,
-        height: height,
-        streamUrl: widget.streamUrl);
-
-    return videoPlayer;
+    return nativePlayer;
   }
 
   void onViewPlayerCreated(viewPlayerController) {
@@ -80,90 +77,74 @@ class _CustomPlayerState extends State<CustomPlayer>
   }
 }
 
-class _VideoPlayerState extends State<BmsVideoPlayer> {
-  String viewType = 'PlayerView';
-
+class _VideoPlayerState extends State<NativePlayer> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      child: nativeView(),
+      child: AndroidView(
+        viewType: 'PlayerView',
+        onPlatformViewCreated: onPlatformViewCreated,
+        creationParams: <String, dynamic>{
+          "videoURL": widget.streamUrl,
+          'contentId': '1256',
+          'videoName': 'Testing Video (Big Bunny)',
+          'userNumber': '12',
+          'previousId': '3',
+          'nextId': '15',
+          'currentTimestamp': 200.0,
+          'adsStreaming': const [
+            {
+              'adsStreamingUrl': 'https://srv.myanmarads.net/vast?z=90014',
+              'adsStartTime': '0'
+            },
+            {
+              'adsStreamingUrl': 'https://srv.myanmarads.net/vast?z=90014',
+              'adsStartTime': '60'
+            }
+          ],
+        },
+        creationParamsCodec: const StandardMessageCodec(),
+      ),
     );
   }
 
-  nativeView() {
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return AndroidView(
-        viewType: viewType,
-        onPlatformViewCreated: onPlatformViewCreated,
-        creationParams: <String, dynamic>{
-          // "x": widget.x,
-          // "y": widget.y,
-          // "width": widget.width,
-          // "height": widget.height,
-          "videoURL": widget.streamUrl
-        },
-        creationParamsCodec: const StandardMessageCodec(),
-      );
-    } else {
-      return UiKitView(
-        viewType: viewType,
-        onPlatformViewCreated: onPlatformViewCreated,
-        creationParams: <String, dynamic>{
-          "x": widget.x,
-          "y": widget.y,
-          "width": widget.width,
-          "height": widget.height,
-          "videoURL": widget.streamUrl
-        },
-        creationParamsCodec: const StandardMessageCodec(),
-      );
-    }
-  }
-
   Future<void> onPlatformViewCreated(id) async {
-    widget.onCreated(BmsVideoPlayerController.init(id));
+    widget.onCreated(NativePlayerController.init(id));
   }
 }
 
-typedef BmsVideoPlayerCreatedCallback = void Function(
-    BmsVideoPlayerController controller);
+typedef NativePlayerCreatedCallback = void Function(
+    NativePlayerController controller);
 
-class BmsVideoPlayerController {
-  MethodChannel? _channel;
+class NativePlayerController {
+  MethodChannel? channel;
 
-  BmsVideoPlayerController.init(int id) {
-    _channel = const MethodChannel('bms_video_player');
+  NativePlayerController.init(int id) {
+    channel = const MethodChannel('native_player');
   }
 
   Future<void> loadUrl(String url) async {
-    return _channel!.invokeMethod('loadUrl', url);
+    return channel!.invokeMethod('loadUrl', url);
   }
 
   Future<void> pauseVideo() async {
-    return _channel!.invokeMethod('pauseVideo', 'pauseVideo');
+    return channel!.invokeMethod('pauseVideo', 'pauseVideo');
   }
 
   Future<void> resumeVideo() async {
-    return _channel!.invokeMethod('resumeVideo', 'resumeVideo');
+    return channel!.invokeMethod('resumeVideo', 'resumeVideo');
   }
 }
 
-class BmsVideoPlayer extends StatefulWidget {
-  final BmsVideoPlayerCreatedCallback onCreated;
-  final x;
-  final y;
-  final width;
-  final height;
-  final streamUrl;
+class NativePlayer extends StatefulWidget {
+  final NativePlayerCreatedCallback onCreated;
 
-  const BmsVideoPlayer({
+  final String streamUrl;
+
+  const NativePlayer({
     super.key,
     required this.onCreated,
-    required this.x,
-    required this.y,
-    required this.width,
-    required this.height,
     required this.streamUrl,
   });
 

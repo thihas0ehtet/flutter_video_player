@@ -1,7 +1,6 @@
 package com.example.video_player
 
 import android.content.Context
-import com.example.video_player.MainActivity
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView

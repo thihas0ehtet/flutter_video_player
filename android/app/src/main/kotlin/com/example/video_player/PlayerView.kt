@@ -1,12 +1,12 @@
 package com.example.video_player
 
-import android.app.Dialog
+
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.view.View
 import android.widget.ImageView
-import android.widget.PopupMenu
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -18,18 +18,11 @@ import com.google.android.exoplayer2.MediaItem.AdsConfiguration
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory.AdsLoaderProvider
-import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.MediaSourceFactory
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.ads.AdPlaybackState
 import com.google.android.exoplayer2.source.ads.AdsLoader
-import com.google.android.exoplayer2.source.ads.AdsMediaSource
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.trackselection.TrackSelectionOverrides
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.PlayerView
-import com.google.android.exoplayer2.ui.TrackSelectionDialogBuilder
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
@@ -44,20 +37,14 @@ internal class PlayerView(context: Context, id: Int, creationParams: Map<String?
 ) : PlatformView,
     MethodChannel.MethodCallHandler, Player.Listener, AppCompatActivity() {
 
-    private var qualityPopUp: PopupMenu?=null
-    private var trackSelector: DefaultTrackSelector?=null
-    private var qualityList = ArrayList<Pair<String, TrackSelectionOverrides.Builder>>()
 
-    private val playerView: PlayerView
+    private var playerView: PlayerView
     private var adsLoader: ImaAdsLoader? = null
     private var eventListener : AdsLoader.EventListener? = null
     private var player: ExoPlayer? = null
     private var contentUri : String? = null
     private val methodChannel: MethodChannel
 
-//    private lateinit var exoQuality: ImageView
-
-    private var trackDialog: Dialog? = null
 
     override fun getView(): View {
         return playerView
@@ -72,7 +59,6 @@ internal class PlayerView(context: Context, id: Int, creationParams: Map<String?
         when (call.method) {
             "loadUrl" -> {
                 contentUri = call.arguments.toString()
-
             }
             "pauseVideo" -> {
                 player!!.pause()
@@ -86,28 +72,15 @@ internal class PlayerView(context: Context, id: Int, creationParams: Map<String?
 
     init {
         mainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        methodChannel = MethodChannel(messenger, "bms_video_player")
+        methodChannel = MethodChannel(messenger, "native_player")
         methodChannel.setMethodCallHandler(this)
         playerView = PlayerView(context)
-
 
         adsLoader = ImaAdsLoader.Builder( /* context= */context).build()
         if (Util.SDK_INT > 23) {
             initializePlayer(id,mainActivity,creationParams,methodChannel)
         }
-
-      initListener()
     }
-
-    private fun initListener() {
-       val exoQuality: ImageView = playerView.findViewById(R.id.exo_quality)
-        exoQuality.setOnClickListener {
-            player!!.seekTo(player!!.currentPosition + 10000)
-//            if(trackDialog == null) initPopupQuality()
-            trackDialog?.show()
-        }
-    }
-
 
     private fun initializePlayer(
         id: Int,
@@ -116,23 +89,28 @@ internal class PlayerView(context: Context, id: Int, creationParams: Map<String?
         methodChannel: MethodChannel
     ) {
 
-        //      trackSelector = DefaultTrackSelector(this, AdaptiveTrackSelection.Factory())
-//        trackSelector = DefaultTrackSelector(this)
-//        // When player is initialized it'll be played with a quality of MaxVideoSize to prevent loading in 1080p from the start
-//        trackSelector!!.setParameters(
-//                trackSelector!!.buildUponParameters().setMaxVideoSize(10, 10)
-//        )
+        val params = creationParams as Map<String?, Any?>?
 
         val dataSourceFactory: DataSource.Factory =
             DefaultDataSourceFactory(view.context, Util.getUserAgent(playerView.context, "flios"))
 
         val mediaSourceFactory: MediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
-          .setAdsLoaderProvider { adsLoader }
+            .setAdsLoaderProvider { adsLoader }
             .setAdViewProvider(playerView)
 
         player = ExoPlayer.Builder(view.context).setMediaSourceFactory(mediaSourceFactory).build()
 
-        player!!.preparePlayer(playerView, player!!, true,mainActivity,methodChannel)
+        player!!.preparePlayer(playerView, player!!,mainActivity,methodChannel)
+
+        val backButton: ImageView = playerView.findViewById(R.id.close_iv)
+        backButton.setOnClickListener {
+            methodChannel.invokeMethod("callBack","")
+        }
+
+        val videoName: TextView = playerView.findViewById(R.id.video_name)
+        videoName.text=params?.get("videoName") as String?
+
+
         playerView.player = player
 
         adsLoader!!.setPlayer(player)
@@ -146,19 +124,15 @@ internal class PlayerView(context: Context, id: Int, creationParams: Map<String?
         playerView.controllerHideOnTouch=true
 
 
-        val url = creationParams as Map<String?, Any?>?
-        val contentUri = Uri.parse(url?.get("videoURL") as String?)
-//        val adTagUri = Uri.parse("https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_preroll_skippable&sz=640x480&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=")
-        val adTagUri = Uri.parse("https://srv.myanmarads.net/vast?z=90014")
 
+        val contentUri = Uri.parse(params?.get("videoURL") as String?)
+        val adTagUri = Uri.parse("https://srv.myanmarads.net/vast?z=90014")
 
         var adPlaybackState = AdPlaybackState(0, 500 * C.MICROS_PER_SECOND)
         adPlaybackState = adPlaybackState.withAdUri(0, 0, adTagUri)
-//        adPlaybackState = adPlaybackState.withAvailableAdUri(0, 0, adTagUri)
 
 
         eventListener?.onAdPlaybackState(adPlaybackState);
-//        val mediaItem = MediaItem.Builder().setUri(contentUri).build()
         val contentStart = MediaItem.Builder().setUri(contentUri)
             .setAdsConfiguration(
                 AdsConfiguration.Builder(adTagUri).build()).build()
@@ -169,75 +143,7 @@ internal class PlayerView(context: Context, id: Int, creationParams: Map<String?
         player!!.prepare()
         player!!.playWhenReady = true
 
-
-
-        //Listener on player
-//        player!!.addListener(object : Player.Listener {
-//            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-//                if(playbackState == Player.STATE_READY) {
-//                    exoQuality.visibility = View.VISIBLE
-//                }
-//            }
-//        })
-
         hideSystemUi(mainActivity)
-    }
-
-//    override fun onTracksInfoChanged(tracksInfo: TracksInfo) {
-//        println("TRACK CHANGED")
-//        println(tracksInfo.trackGroupInfos)
-//    }
-
-//    override fun onPlaybackStateChanged(playbackState: Int) {
-//        if (playbackState==Player.STATE_READY){
-//
-//            trackSelector?.generateQualityList()?.let {
-//                qualityList = it
-//                setUpQualityList()
-//            }
-//        }
-//    }
-
-//    override fun onStart() {
-//        super.onStart()
-//        if (Util.SDK_INT >= 24) {
-//            initializePlayer()
-//        }
-//    }
-
-//    override fun onStop() {
-//        super.onStop()
-//        if (Util.SDK_INT >= 24) {
-//            releasePlayer(mainActivity)
-//        }
-//    }
-
-//    override fun onResume() {
-//        super.onResume()
-//        if (Util.SDK_INT < 24) {
-//            initializePlayer()
-//        }
-//    }
-//    override fun onPause() {
-//        super.onPause()
-//        if (Util.SDK_INT < 24) {
-//            releasePlayer(mainActivity)
-//        }
-//    }
-
-//    222
-
-    private fun initPopupQuality() {
-        val trackSelectionDialogBuilder = TrackSelectionDialogBuilder(
-                this,
-                "Select Quality",
-                trackSelector!!,
-                C.TRACK_TYPE_VIDEO
-        )
-        trackSelectionDialogBuilder.setTrackNameProvider {
-           " Select Quality dd"
-        }
-        trackDialog = trackSelectionDialogBuilder.build()
     }
 
     private fun hideSystemUi(mainActivity: MainActivity){
@@ -250,7 +156,7 @@ internal class PlayerView(context: Context, id: Int, creationParams: Map<String?
 
     private fun releasePlayer(mainActivity: MainActivity){
         mainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        //adsLoader!!.setPlayer(null)
+        adsLoader!!.setPlayer(null)
         playerView.keepScreenOn=false;
         playerView.player = null
         player!!.release()

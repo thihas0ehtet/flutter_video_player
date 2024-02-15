@@ -2,7 +2,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/custom_player.dart';
 import 'package:http/http.dart' as http;
-import 'package:video_player/player.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -118,8 +117,13 @@ class _HomePageState extends State<HomePage> {
             height: 40,
           ),
           ElevatedButton(
-              onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const CustomPlayer())),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const CustomPlayer(
+                        streamUrl:
+                            "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                        //  "https://storage.googleapis.com/gvabox/media/samples/stock.mp4",
+                        //  "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8",
+                      ))),
               child: const Icon(Icons.play_arrow)),
           const SizedBox(
             height: 40,
