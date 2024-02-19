@@ -31,12 +31,6 @@ fun ExoPlayer.preparePlayer(playerView: PlayerView,player: ExoPlayer,
             player.seekTo(player.currentPosition + 10000)
         }
 
-
-//        val qualityButton: ImageView = playerView.findViewById(R.id.exo_setting_icon)
-//            qualityButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_settings))
-//            qualityButton.setOnClickListener {
-//        }
-
         mainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
     }
 }

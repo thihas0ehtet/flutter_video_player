@@ -120,6 +120,7 @@ class _HomePageState extends State<HomePage> {
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => const CustomPlayer(
                         streamUrl:
+                            // "https://mahar-movie.akamaized.net/tkt-0044/playlist.m3u8?hdnea=st=1708268850~exp=1708279650~acl=/*~hmac=16d2e55cceae44fdf548869f260f64b957982ca94713391357c4dfb663f58b97"
                             "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
                         //  "https://storage.googleapis.com/gvabox/media/samples/stock.mp4",
                         //  "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8",
