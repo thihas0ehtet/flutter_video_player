@@ -6,46 +6,54 @@ import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+//import android.support.v4.media.session.PlaybackStateCompat
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+//import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.MediaItem.AdsConfiguration
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.ext.ima.ImaAdsLoader
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
-import com.google.android.exoplayer2.source.MediaSourceFactory
-import com.google.android.exoplayer2.source.ads.AdPlaybackState
-import com.google.android.exoplayer2.source.ads.AdsLoader
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
-import com.google.android.exoplayer2.ui.PlayerView
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
+import androidx.fragment.app.FragmentActivity
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.ads.AdsLoader
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import androidx.media3.ui.PlayerView
+//import com.google.android.exoplayer2.C
+//import com.google.android.exoplayer2.ExoPlayer
+//import com.google.android.exoplayer2.MediaItem
+//import com.google.android.exoplayer2.MediaItem.AdsConfiguration
+//import com.google.android.exoplayer2.Player
+//import com.google.android.exoplayer2.ext.ima.ImaAdsLoader
+//import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
+//import com.google.android.exoplayer2.source.MediaSourceFactory
+//import com.google.android.exoplayer2.source.ads.AdPlaybackState
+//import com.google.android.exoplayer2.source.ads.AdsLoader
+//import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+//import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
+//import com.google.android.exoplayer2.ui.PlayerView
+//import com.google.android.exoplayer2.upstream.DataSource
+//import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+//import com.google.android.exoplayer2.util.Util
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
+import javax.sql.DataSource
 
 
-internal class PlayerView(context: Context, id: Int, creationParams: Map<String?, Any?>?, messenger: BinaryMessenger,
+internal class MyPlayerView(context: Context, id: Int, creationParams: Map<String?, Any?>?, messenger: BinaryMessenger,
                           private val mainActivity: MainActivity
 ) : PlatformView,
-        MethodChannel.MethodCallHandler, Player.Listener, AppCompatActivity() {
+        MethodChannel.MethodCallHandler, Player.Listener {
 
 
     private var playerView: PlayerView
-    private var adsLoader: ImaAdsLoader? = null
+//    private var adsLoader: ImaAdsLoader? = null
     private var eventListener: AdsLoader.EventListener? = null
     private var player: ExoPlayer? = null
     private var contentUri: String? = null
@@ -53,6 +61,9 @@ internal class PlayerView(context: Context, id: Int, creationParams: Map<String?
     private val relativeLayout: RelativeLayout = RelativeLayout(context)
     private val handler = Handler(Looper.getMainLooper())
     private var userNumberView: TextView
+
+    private var isShowingTrackSelectionDialog = false
+    private val trackSelector: DefaultTrackSelector? = null
 
     override fun getView(): View {
         return relativeLayout
@@ -125,14 +136,15 @@ internal class PlayerView(context: Context, id: Int, creationParams: Map<String?
         }, 10000) //
         userNumberView.textSize= 16.0F
         relativeLayout.addView(playerView)
-        relativeLayout.addView(watermarkView)
+//        relativeLayout.addView(watermarkView)
         relativeLayout.addView(userNumberView)
 
 
-        adsLoader = ImaAdsLoader.Builder( /* context= */context).build()
-        if (Util.SDK_INT > 23) {
-            initializePlayer(id, mainActivity, creationParams, methodChannel)
-        }
+//        adsLoader = ImaAdsLoader.Builder( /* context= */context).build()
+//        if (Util.SDK_INT > 23) {
+//            initializePlayer(id, mainActivity, creationParams, methodChannel)
+//        }
+        initializePlayer(id, mainActivity, creationParams, methodChannel)
     }
 
     private fun showText() {
@@ -179,56 +191,58 @@ internal class PlayerView(context: Context, id: Int, creationParams: Map<String?
         val params = creationParams as Map<String?, Any?>?
 
         // Set up track selection quality control
-        val trackSelector = DefaultTrackSelector(mainActivity)
-        trackSelector.parameters = trackSelector.parameters
-                .buildUpon()
-                .setMaxVideoSizeSd()
-                .setMaxVideoBitrate(500000) // Set your desired maximum bitrate
-                .build()
+//        val trackSelector = DefaultTrackSelector(mainActivity)
+//
+//        trackSelector.parameters = trackSelector.parameters
+//                .buildUpon()
+//                .setMaxVideoSizeSd()
+//                .setMaxVideoBitrate(500000) // Set your desired maximum bitrate
+//                .build()
 
-        val dataSourceFactory: DataSource.Factory =
-                DefaultDataSourceFactory(view.context, Util.getUserAgent(playerView.context, "mahar"))
+//        val dataSourceFactory: DataSource.Factory =
+//                DefaultDataSourceFactory(view.context, Util.getUserAgent(playerView.context, "mahar"))
+//
+//        val mediaSourceFactory: MediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
+////                .setAdsLoaderProvider { adsLoader }
+//                .setAdViewProvider(playerView)
 
-        val mediaSourceFactory: MediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
-                .setAdsLoaderProvider { adsLoader }
-                .setAdViewProvider(playerView)
+//        player = ExoPlayer.Builder(view.context).setMediaSourceFactory(mediaSourceFactory).setTrackSelector(trackSelector).build()
 
-        player = ExoPlayer.Builder(view.context).setMediaSourceFactory(mediaSourceFactory).build()
-
+        player = ExoPlayer.Builder(view.context).build()
         player!!.preparePlayer(playerView, player!!, mainActivity, methodChannel)
 
-        val backButton: ImageView = playerView.findViewById(R.id.close_iv)
-        backButton.setOnClickListener {
-            methodChannel.invokeMethod("callBack", "")
-        }
+//        val backButton: ImageView = playerView.findViewById(R.id.close_iv)
+//        backButton.setOnClickListener {
+//            methodChannel.invokeMethod("callBack", "")
+//        }
 
-        val videoName: TextView = playerView.findViewById(R.id.video_name)
-        videoName.text = params?.get("videoName") as String?
+//        val videoName: TextView = playerView.findViewById(R.id.video_name)
+//        videoName.text = params?.get("videoName") as String?
 
 
         playerView.player = player
 
-        adsLoader!!.setPlayer(player)
-        playerView.isControllerVisible
+//        adsLoader!!.setPlayer(player)
+//        playerView.isControllerVisible
 
-        playerView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
-
-        playerView.showController()
+//        playerView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
+//
+//        playerView.showController()
         playerView.keepScreenOn = true;
-        playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
-        playerView.controllerHideOnTouch = true
+//        playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+//       playerView.controllerHideOnTouch = false
 
 
         val contentUri = Uri.parse(params?.get("videoURL") as String?)
         val adTagUri = Uri.parse("https://srv.myanmarads.net/vast?z=90014")
 
-        var adPlaybackState = AdPlaybackState(0, 500 * C.MICROS_PER_SECOND)
-        adPlaybackState = adPlaybackState.withAdUri(0, 0, adTagUri)
+//        var adPlaybackState = AdPlaybackState(0, 500 * C.MICROS_PER_SECOND)
+//        adPlaybackState = adPlaybackState.withAvailableAdUri(0, 0, adTagUri)
 
-        eventListener?.onAdPlaybackState(adPlaybackState);
+//        eventListener?.onAdPlaybackState(adPlaybackState);
         val contentStart = MediaItem.Builder().setUri(contentUri)
                 .setAdsConfiguration(
-                        AdsConfiguration.Builder(adTagUri).build()).build()
+                        MediaItem.AdsConfiguration.Builder(adTagUri).build()).build()
 
         player!!.addMediaItem(contentStart)
 
@@ -236,31 +250,23 @@ internal class PlayerView(context: Context, id: Int, creationParams: Map<String?
         player!!.prepare()
         player!!.playWhenReady = true
 
-        val qualityButton: ImageView = playerView.findViewById(R.id.exo_quality)
-        qualityButton.setOnClickListener {
-//            showQualitySelectionDialog(mainActivity)
-        }
+//        val qualityButton: ImageView = playerView.findViewById(R.id.exo_quality)
+//        qualityButton.setOnClickListener {
+////            showQualitySelectionDialog(mainActivity)
+////            if (!isShowingTrackSelectionDialog
+////                    && TrackSelectionDialog.willHaveContent(trackSelector)) {
+////                isShowingTrackSelectionDialog = true
+////                val trackSelectionDialog: TrackSelectionDialog = TrackSelectionDialog.createForTrackSelector(
+////                        trackSelector
+////                )  /* onDismissListener= */
+////                { dismissedDialog -> isShowingTrackSelectionDialog = false }
+////                trackSelectionDialog.show(supportFragmentManager,  /* tag= */null)
+////            }
+//        }
+
 
         hideSystemUi(mainActivity)
     }
-
-    // Function to show quality selection dialog
-//    private fun showQualitySelectionDialog(context: Context) {
-//        val qualityOptions = arrayOf("Low", "Medium", "High") // Add your desired options
-//
-//        val builder = AlertDialog.Builder(context)
-//        builder.setTitle("Select Quality")
-//                .setItems(qualityOptions) { dialog, which ->
-//                    // Handle selection based on 'which'
-//                    // Update track selection parameters accordingly
-//                    // For example, you can update bitrate or resolution based on the selected option
-//                }
-//                .setNegativeButton("Cancel") { dialog, _ ->
-//                    dialog.dismiss()
-//                }
-//
-//        builder.create().show()
-//    }
 
     private fun hideSystemUi(mainActivity: MainActivity) {
         WindowCompat.setDecorFitsSystemWindows(mainActivity.window, false)
@@ -272,7 +278,7 @@ internal class PlayerView(context: Context, id: Int, creationParams: Map<String?
 
     private fun releasePlayer(mainActivity: MainActivity) {
         mainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        adsLoader!!.setPlayer(null)
+//        adsLoader!!.setPlayer(null)
         playerView.keepScreenOn = false;
         playerView.player = null
         player!!.release()

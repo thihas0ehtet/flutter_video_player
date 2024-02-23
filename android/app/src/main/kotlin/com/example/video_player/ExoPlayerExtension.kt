@@ -6,11 +6,14 @@ import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.view.*
 import android.widget.ImageView
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.ui.PlayerView
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
+
+//import com.google.android.exoplayer2.ExoPlayer
+//import com.google.android.exoplayer2.ui.PlayerView
 
 @SuppressLint("SourceLockedOrientationActivity")
-fun ExoPlayer.preparePlayer(playerView: PlayerView,player: ExoPlayer,
+fun ExoPlayer.preparePlayer(playerView: PlayerView, player: ExoPlayer,
                             mainActivity: MainActivity, methodChannel: io.flutter.plugin.common.MethodChannel) {
     (playerView.context as Context).apply {
         val playerViewFullscreen = PlayerView(this)
@@ -20,16 +23,16 @@ fun ExoPlayer.preparePlayer(playerView: PlayerView,player: ExoPlayer,
         playerViewFullscreen.setBackgroundColor(Color.TRANSPARENT)
         (playerView.rootView as ViewGroup).apply { addView(playerViewFullscreen, childCount) }
 
-
-        val backwardButton: ImageView = playerView.findViewById(R.id.exo_rew)
-        backwardButton.setOnClickListener {
-            player.seekTo(player.currentPosition - 10000)
-        }
-
-        val forwardButton: ImageView = playerView.findViewById(R.id.exo_ffwd)
-        forwardButton.setOnClickListener {
-            player.seekTo(player.currentPosition + 10000)
-        }
+//
+//        val backwardButton: ImageView = playerView.findViewById(R.id.exo_rew)
+//        backwardButton.setOnClickListener {
+//            player.seekTo(player.currentPosition - 10000)
+//        }
+//
+//        val forwardButton: ImageView = playerView.findViewById(R.id.exo_ffwd)
+//        forwardButton.setOnClickListener {
+//            player.seekTo(player.currentPosition + 10000)
+//        }
 
         mainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
     }

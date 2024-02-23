@@ -1,5 +1,3 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -80,32 +78,29 @@ class _CustomPlayerState extends State<CustomPlayer>
 class _VideoPlayerState extends State<NativePlayer> {
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      child: AndroidView(
-        viewType: 'PlayerView',
-        onPlatformViewCreated: onPlatformViewCreated,
-        creationParams: <String, dynamic>{
-          "videoURL": widget.streamUrl,
-          'contentId': '1256',
-          'videoName': 'Testing Video (Big Bunny)',
-          'userNumber': '12',
-          'previousId': '3',
-          'nextId': '15',
-          'currentTimestamp': 200.0,
-          'adsStreaming': const [
-            {
-              'adsStreamingUrl': 'https://srv.myanmarads.net/vast?z=90014',
-              'adsStartTime': '0'
-            },
-            {
-              'adsStreamingUrl': 'https://srv.myanmarads.net/vast?z=90014',
-              'adsStartTime': '60'
-            }
-          ],
-        },
-        creationParamsCodec: const StandardMessageCodec(),
-      ),
+    return AndroidView(
+      viewType: 'PlayerView',
+      onPlatformViewCreated: onPlatformViewCreated,
+      creationParams: <String, dynamic>{
+        "videoURL": widget.streamUrl,
+        'contentId': '1256',
+        'videoName': 'Testing Video (Big Bunny)',
+        'userNumber': '12',
+        'previousId': '3',
+        'nextId': '15',
+        'currentTimestamp': 200.0,
+        'adsStreaming': const [
+          {
+            'adsStreamingUrl': 'https://srv.myanmarads.net/vast?z=90014',
+            'adsStartTime': '0'
+          },
+          {
+            'adsStreamingUrl': 'https://srv.myanmarads.net/vast?z=90014',
+            'adsStartTime': '60'
+          }
+        ],
+      },
+      creationParamsCodec: const StandardMessageCodec(),
     );
   }
 

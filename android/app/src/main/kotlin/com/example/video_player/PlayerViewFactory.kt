@@ -10,6 +10,6 @@ import io.flutter.plugin.platform.PlatformViewFactory
 class PlayerViewFactory(private val messenger: BinaryMessenger, private val mainActivity: MainActivity) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context, viewId: Int, args: Any?): PlatformView {
         val creationParams = args as Map<String?, Any?>?
-        return PlayerView(context, viewId, creationParams,messenger,mainActivity)
+        return MyPlayerView(context, viewId, creationParams,messenger,mainActivity)
     }
 }
