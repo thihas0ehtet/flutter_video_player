@@ -1,7 +1,6 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:video_player/custom_player.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
+import 'package:video_player/platform_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,70 +10,36 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String publicIPAddress = "";
-  ConnectivityResult _connectivityResult = ConnectivityResult.none;
+  // Define the method channel
+  static const platform = MethodChannel('mahar.com/exoplayer');
 
-  @override
-  void initState() {
-    super.initState();
-    getConnectivity();
-  }
-
-  getPublicIP() async {
+  // Function to show the native view
+  static Future<void> showExoPlayerView({int timestamp = 0}) async {
     try {
-      const url = 'https://api.ipify.org';
-      var response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        return response.body;
-      } else {
-        return "Error";
-      }
-    } catch (e) {
-      return "Error";
-    }
-  }
-
-  getConnectivity() {
-    Connectivity()
-        .onConnectivityChanged
-        .listen((ConnectivityResult result) async {
-      String ip = await getPublicIP();
-      setState(() {
-        publicIPAddress = ip;
-        _connectivityResult = result;
+      await platform.invokeMethod('PlayerView', {
+        'streamUrl':
+            "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        'userNumber': 'F13KD',
+        'videoName': 'Testing Video (Big Bunny)',
+        'currentTimestamp': timestamp.toString(),
+        'adsStreaming': const [
+          {
+            'adsStreamingUrl': 'https://srv.myanmarads.net/vast?z=90014',
+            'adsStartTime': '0'
+          },
+          {
+            'adsStreamingUrl': 'https://srv.myanmarads.net/vast?z=90014',
+            'adsStartTime': '60'
+          }
+        ],
       });
-    });
+    } on PlatformException catch (e) {
+      debugPrint("Failed to show native view: '${e.message}'.");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    String connectionStatus = "";
-
-    switch (_connectivityResult) {
-      case ConnectivityResult.mobile:
-        connectionStatus = "Mobile data connection is being used.";
-        break;
-      case ConnectivityResult.wifi:
-        connectionStatus = "Wi-Fi connection is being used.";
-        break;
-      case ConnectivityResult.bluetooth:
-        connectionStatus = "Bluetooth connection is being used.";
-        break;
-      case ConnectivityResult.ethernet:
-        connectionStatus = "Ethernet connection is being used.";
-        break;
-      case ConnectivityResult.other:
-        connectionStatus = "Other connection is being used.";
-        break;
-      case ConnectivityResult.vpn:
-        connectionStatus = "Vpn connection is being used.";
-        break;
-      case ConnectivityResult.none:
-        connectionStatus = "No connection.";
-        publicIPAddress = "No IP Address";
-        break;
-    }
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -84,50 +49,29 @@ class _HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Center(
-            child: Text(
-              "Connection Status:",
-              style: TextStyle(fontSize: 18),
-            ),
-          ),
-          Center(
-            child: Text(
-              connectionStatus,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Center(
+              child: Column(
+                children: [
+                  ElevatedButton(
+                      onPressed: () {
+                        showExoPlayerView(timestamp: 200);
+                        PlatformService.setupChannel(context);
+                      },
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.play_arrow),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text("Play")
+                        ],
+                      )),
+                ],
               ),
-              textAlign: TextAlign.center,
             ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          Center(
-            child: Text(
-              publicIPAddress,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          const SizedBox(
-            height: 40,
-          ),
-          ElevatedButton(
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const CustomPlayer(
-                        streamUrl:
-                            // "https://mahar-movie.akamaized.net/tkt-0044/playlist.m3u8?hdnea=st=1708268850~exp=1708279650~acl=/*~hmac=16d2e55cceae44fdf548869f260f64b957982ca94713391357c4dfb663f58b97"
-                            "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-                        //  "https://storage.googleapis.com/gvabox/media/samples/stock.mp4",
-                        //  "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8",
-                      ))),
-              child: const Icon(Icons.play_arrow)),
-          const SizedBox(
-            height: 40,
           ),
         ],
       ),
