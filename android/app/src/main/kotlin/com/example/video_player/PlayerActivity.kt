@@ -311,10 +311,21 @@ class PlayerActivity() : Activity() {
         player = null
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        releasePlayer()
+ 
+    override fun onStop() {
+        player!!.pause()
+        super.onStop()
     }
 
+    override fun onPause() {
+        player!!.pause()
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        player!!.pause()
+        releasePlayer()
+    }
 
 }
