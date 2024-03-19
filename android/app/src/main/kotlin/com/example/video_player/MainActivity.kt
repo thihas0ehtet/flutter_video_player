@@ -21,11 +21,15 @@ class MainActivity: FlutterActivity() {
                 val videoTitle: String? = call.argument("videoName")
                 val userNumber: String? = call.argument("userNumber")
                 val currentTimestamp: String? = call.argument("currentTimestamp")
+                val adsStreaming: String?= call.argument("adsStreaming")
+
+
                 val intent = Intent(this, PlayerActivity::class.java).apply {
                     putExtra("streamUrl", streamUrl)
                     putExtra("videoTitle", videoTitle)
                     putExtra("userNumber", userNumber)
                     putExtra("currentTimestamp", currentTimestamp)
+                    putExtra("adsStreaming", adsStreaming)
                 }
 
                 MessengerHolder.binaryMessenger = flutterEngine.dartExecutor.binaryMessenger

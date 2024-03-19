@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/platform_service.dart';
@@ -18,20 +20,27 @@ class _HomePageState extends State<HomePage> {
     try {
       await platform.invokeMethod('PlayerView', {
         'streamUrl':
-            "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+            // "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+            "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8",
         'userNumber': 'F13KD',
         'videoName': 'Testing Video (Big Bunny)',
         'currentTimestamp': timestamp.toString(),
-        'adsStreaming': const [
+        'adsStreaming': jsonEncode([
           {
-            'adsStreamingUrl': 'https://srv.myanmarads.net/vast?z=90014',
-            'adsStartTime': '0'
+            "adsStreamingUrl": "https://srv.myanmarads.net/vast?z=85605",
+            "adsStreamingType": "preroll",
+            "adsStartTime": 0,
+            "status": true,
+            "targetUser": "all"
           },
           {
-            'adsStreamingUrl': 'https://srv.myanmarads.net/vast?z=90014',
-            'adsStartTime': '60'
-          }
-        ],
+            "adsStreamingUrl": "https://srv.myanmarads.net/vast?z=85605",
+            "adsStreamingType": "midroll",
+            "adsStartTime": 30,
+            "status": true,
+            "targetUser": "all"
+          },
+        ]),
       });
     } on PlatformException catch (e) {
       debugPrint("Failed to show native view: '${e.message}'.");
