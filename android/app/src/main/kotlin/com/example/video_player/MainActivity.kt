@@ -21,6 +21,8 @@ class MainActivity: FlutterActivity() {
                 val videoTitle: String? = call.argument("videoName")
                 val userNumber: String? = call.argument("userNumber")
                 val currentTimestamp: String? = call.argument("currentTimestamp")
+                val previousId: String? = call.argument("previousId")
+                val nextId: String? = call.argument("nextId")
                 val adsStreaming: String?= call.argument("adsStreaming")
 
 
@@ -29,6 +31,8 @@ class MainActivity: FlutterActivity() {
                     putExtra("videoTitle", videoTitle)
                     putExtra("userNumber", userNumber)
                     putExtra("currentTimestamp", currentTimestamp)
+                    putExtra("previousId", previousId)
+                    putExtra("nextId", nextId)
                     putExtra("adsStreaming", adsStreaming)
                 }
 

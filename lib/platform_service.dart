@@ -22,10 +22,26 @@ class PlatformService {
         String data = call.arguments;
         print('Received timestamp in second from player: $data');
         break;
-      case 'playNextVideo':
-        String contentId = call.arguments;
-        print('Received contentID to play player: $contentId');
+
+      //Previous Action
+      case 'previousAction':
+        List result = call.arguments.split(",");
+        String sec = result[0];
+        String duration = result[1];
+        String contentId = result[2];
+        print('Received data from previousAction: $sec $duration $contentId');
+
         break;
+
+      //Next Action
+      case 'nextAction':
+        List result = call.arguments.split(",");
+        String sec = result[0];
+        String duration = result[1];
+        String contentId = result[2];
+        print('Received data from previousAction: $sec $duration $contentId');
+        break;
+
       default:
         print('Unrecognized method: ${call.method}');
     }

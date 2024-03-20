@@ -62,6 +62,8 @@ class PlayerActivity() : Activity() {
         val currentTimestamp = intent.getStringExtra("currentTimestamp") ?: ""
         val videoTitle = intent.getStringExtra("videoTitle") ?: ""
         val streamUrl = intent.getStringExtra("streamUrl") ?: ""
+        val previousId = intent.getStringExtra("previousId") ?: ""
+        val nextId = intent.getStringExtra("nextId") ?: ""
         val adsStreaming = intent.getStringExtra("adsStreaming") ?: ""
 
         val methodChannel = binaryMessenger?.let { MethodChannel(it, "mahar.com/exoplayer") }
@@ -144,7 +146,7 @@ class PlayerActivity() : Activity() {
         adsLoader = ImaAdsLoader.Builder( this).build()
 
         if (methodChannel != null) {
-            initializePlayer(streamUrl,videoTitle,currentTimestamp,adsStreaming,methodChannel)
+            initializePlayer(streamUrl,videoTitle,currentTimestamp,previousId,nextId,adsStreaming,methodChannel)
         }
 
         relativeLayout.addView(playerView)
@@ -160,6 +162,8 @@ class PlayerActivity() : Activity() {
         streamUrl:String,
         videoTitle:String,
         currentTimestamp:String,
+        previousId:String,
+        nextId:String,
         adsStreaming:String,
        methodChannel: MethodChannel
     ) {
@@ -208,6 +212,26 @@ class PlayerActivity() : Activity() {
         settingButton.setOnClickListener {
             showQualitySelectionDialog(trackSelector)
         }
+
+         // Previous Button
+         val previousButton: ImageView = playerView.findViewById(R.id.previous)
+         if(previousId==""){
+             previousButton.isActivated=false
+         }
+         previousButton.setOnClickListener {
+            //  this.finish()
+             methodChannel.invokeMethod("previousAction",(player!!.currentPosition/ 1000L).toString()+","+(player!!.duration/ 1000L).toString()+","+previousId)
+         }
+ 
+         // Next Button
+         val nextButton: ImageView = playerView.findViewById(R.id.next)
+         if(nextId==""){
+             nextButton.isActivated=false
+         }
+         nextButton.setOnClickListener {
+            //  this.finish()
+             methodChannel.invokeMethod("nextAction",(player!!.currentPosition/ 1000L).toString()+","+(player!!.duration/ 1000L).toString()+","+nextId)
+         }
 
         //currentTimestamp
         val timestamp = (currentTimestamp as String?)?.toLong()
