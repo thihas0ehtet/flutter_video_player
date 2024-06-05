@@ -11,6 +11,7 @@ import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -21,8 +22,10 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.source.MediaSourceFactory
+import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.source.ads.AdsLoader
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DataSource
@@ -149,10 +152,23 @@ class PlayerActivity() : Activity() {
             initializePlayer(streamUrl,videoTitle,currentTimestamp,previousId,nextId,adsStreaming,methodChannel)
         }
 
+
+        //Replay Button
+        val replayButtonView = ImageView(this)
+        replayButtonView.setImageResource(R.drawable.mahar_app_logo)
+        val replayButtonViewLayoutParams = RelativeLayout.LayoutParams(
+            150,
+            150
+        )
+        replayButtonViewLayoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL)
+        replayButtonViewLayoutParams.addRule(RelativeLayout.CENTER_VERTICAL)
+        replayButtonView.layoutParams = replayButtonViewLayoutParams
+
+
         relativeLayout.addView(playerView)
         relativeLayout.addView(logoView)
+//        relativeLayout.addView(replayButtonView)
         relativeLayout.addView(userNumberView)
-
 
         setContentView(relativeLayout)
 
@@ -173,7 +189,7 @@ class PlayerActivity() : Activity() {
         trackSelector.parameters = trackSelector.parameters
             .buildUpon()
             .setMaxVideoSizeSd()
-            .setMaxVideoBitrate(0) // Set your desired maximum bitrate
+            .setMaxVideoBitrate(400000) // Set your desired maximum bitrate
             .build()
 
 
@@ -181,7 +197,7 @@ class PlayerActivity() : Activity() {
             DefaultDataSourceFactory(this, Util.getUserAgent(playerView.context, "mahar"))
 
         val mediaSourceFactory: MediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
-               .setAdsLoaderProvider { adsLoader }
+              .setAdsLoaderProvider { adsLoader }
             .setAdViewProvider(playerView)
 
 
@@ -200,6 +216,8 @@ class PlayerActivity() : Activity() {
         val videoName: TextView = playerView.findViewById(R.id.video_name)
         videoName.text = videoTitle
 
+
+
         // Back Button
         val backButton: ImageView = playerView.findViewById(R.id.close_iv)
         backButton.setOnClickListener {
@@ -216,20 +234,18 @@ class PlayerActivity() : Activity() {
          // Previous Button
          val previousButton: ImageView = playerView.findViewById(R.id.previous)
          if(previousId==""){
-             previousButton.isActivated=false
+             previousButton.visibility=View.INVISIBLE
          }
          previousButton.setOnClickListener {
-            //  this.finish()
              methodChannel.invokeMethod("previousAction",(player!!.currentPosition/ 1000L).toString()+","+(player!!.duration/ 1000L).toString()+","+previousId)
          }
  
          // Next Button
          val nextButton: ImageView = playerView.findViewById(R.id.next)
          if(nextId==""){
-             nextButton.isActivated=false
+             nextButton.visibility=View.INVISIBLE
          }
          nextButton.setOnClickListener {
-            //  this.finish()
              methodChannel.invokeMethod("nextAction",(player!!.currentPosition/ 1000L).toString()+","+(player!!.duration/ 1000L).toString()+","+nextId)
          }
 
@@ -259,6 +275,19 @@ class PlayerActivity() : Activity() {
         player!!.repeatMode = Player.REPEAT_MODE_ALL
         player!!.prepare()
         player!!.playWhenReady = true
+
+        player!!.addListener(object : Player.Listener {
+
+            override fun onPlaybackStateChanged(state: Int) {
+                super.onPlaybackStateChanged(state)
+                if (state == Player.STATE_ENDED) {
+
+                    player!!.playWhenReady = false
+                    playerView.hideController()
+                }
+            }
+
+        })
     }
 
 
@@ -275,8 +304,7 @@ class PlayerActivity() : Activity() {
             updateTrackSelection(which,trackSelector)
             dialog.dismiss()
         }
-        val dialog = builder.create()
-        dialog.show()
+        builder.create().show()
     }
 
 

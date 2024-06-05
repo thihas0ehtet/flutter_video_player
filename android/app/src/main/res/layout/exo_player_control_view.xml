@@ -48,13 +48,17 @@
 		android:paddingTop="0dp">
 
 		<ImageButton android:id="@+id/previous"
+			android:background="@drawable/focusable_background"
 			android:layout_marginRight="35dp"
+			android:layout_width="36dp"
+			android:layout_height="36dp"
 			style="@style/ExoMediaButton.Previous"/>
 
 		<ImageView
 			android:id="@+id/exo_rew"
-			android:layout_width="32dp"
-			android:layout_height="32dp"
+			android:layout_width="36dp"
+			android:background="@drawable/focusable_background"
+			android:layout_height="36dp"
 			android:layout_gravity="center"
 			android:layout_marginRight="35dp"
 			android:adjustViewBounds="true"
@@ -65,26 +69,26 @@
 
 		<ImageButton
 			android:id="@id/exo_play"
-			android:layout_width="32dp"
-			android:layout_height="32dp"
-			android:background="@android:color/transparent"
+			android:layout_width="36dp"
+			android:layout_height="36dp"
+			android:background="@drawable/focusable_background"
 			style="@style/ExoMediaButton.Play"
 			/>
 
 		<ImageButton
 			android:id="@id/exo_pause"
 			style="@style/ExoMediaButton.Pause"
-			android:layout_width="32dp"
-			android:background="@android:color/transparent"
-			android:layout_height="32dp" />
-
+			android:layout_width="36dp"
+			android:background="@drawable/focusable_background"
+			android:layout_height="36dp" />
 
 
 		<ImageView
 			android:id="@+id/exo_ffwd"
-			android:layout_width="32dp"
-			android:layout_height="32dp"
+			android:layout_width="36dp"
+			android:layout_height="36dp"
 			android:layout_gravity="center"
+			android:background="@drawable/focusable_background"
 			android:layout_marginLeft="35dp"
 			android:adjustViewBounds="true"
 			android:scaleType="fitCenter"
@@ -92,7 +96,10 @@
 			android:visibility="visible" />
 
 		<ImageButton android:id="@+id/next"
+			android:background="@drawable/focusable_background"
 			android:layout_marginLeft="35dp"
+			android:layout_width="36dp"
+			android:layout_height="36dp"
 			style="@style/ExoMediaButton.Next"/>
 
 	</LinearLayout>
@@ -146,6 +153,7 @@
                 android:id="@+id/exo_settings"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+				android:background="@drawable/focusable_background"
                 android:layout_marginEnd="30dp"
                 android:src="@drawable/ic_settings" />
 

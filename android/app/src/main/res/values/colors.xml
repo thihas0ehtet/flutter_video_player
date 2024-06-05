@@ -1,0 +1,4 @@
+<!-- res/values/colors.xml -->
+<resources>
+    <color name="focus_color">#00A9D0</color>  <!-- Defining the color resource -->
+</resources>

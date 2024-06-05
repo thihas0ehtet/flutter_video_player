@@ -1,0 +1,6 @@
+<!-- res/drawable/focusable_background.xml -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@color/focus_color" android:state_focused="true"/>  <!-- Light blue color when focused -->
+    <item android:drawable="@android:color/transparent"/>  <!-- Default background color -->
+</selector>

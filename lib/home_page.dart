@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
         'videoName': 'Testing Video (Big Bunny)',
         'currentTimestamp': timestamp.toString(),
         // 'nextId': "e565c49e-39ab-4394-b358-5bf0f0629423",
-        'nextId': "e565c49e-39ab-4394-b358-5bf0f0629423",
+        'nextId': "",
         'previousId': "40424b88-8066-4e2d-a9db-b29a5bc0d227",
         'adsStreaming': jsonEncode([
           {
