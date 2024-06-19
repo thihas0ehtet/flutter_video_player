@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
@@ -16,6 +17,8 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.view.WindowCompat
+import com.example.video_player.MessengerHolder.binaryMessenger
+import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
@@ -47,7 +50,8 @@ class PlayerActivity() : Activity() {
     private var player: ExoPlayer? = null
     private var selectedQualityIndex: Int = 0
     private var adsLoader: ImaAdsLoader? = null
-    
+    val methodChannel = binaryMessenger?.let { MethodChannel(it, "mahar.com/exoplayer") }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
        this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
@@ -148,6 +152,7 @@ class PlayerActivity() : Activity() {
         //Ads
         adsLoader = ImaAdsLoader.Builder( this).build()
 
+
         if (methodChannel != null) {
             initializePlayer(streamUrl,videoTitle,currentTimestamp,previousId,nextId,adsStreaming,methodChannel)
         }
@@ -184,15 +189,6 @@ class PlayerActivity() : Activity() {
        methodChannel: MethodChannel
     ) {
 
-        val trackSelector = DefaultTrackSelector(this)
-
-        trackSelector.parameters = trackSelector.parameters
-            .buildUpon()
-            .setMaxVideoSizeSd()
-            .setMaxVideoBitrate(400000) // Set your desired maximum bitrate
-            .build()
-
-
         val dataSourceFactory: DataSource.Factory =
             DefaultDataSourceFactory(this, Util.getUserAgent(playerView.context, "mahar"))
 
@@ -200,8 +196,14 @@ class PlayerActivity() : Activity() {
               .setAdsLoaderProvider { adsLoader }
             .setAdViewProvider(playerView)
 
+        val trackSelector = DefaultTrackSelector(this)
 
-        player = ExoPlayer.Builder(this).setMediaSourceFactory(mediaSourceFactory).build()
+//        trackSelector.parameters = trackSelector.parameters
+//            .buildUpon()
+//            .setMaxVideoBitrate(400000) // Set your desired maximum bitrate
+//            .build()
+
+        player = ExoPlayer.Builder(this).setMediaSourceFactory(mediaSourceFactory).setTrackSelector(trackSelector).build()
 
         //Ads
         adsLoader!!.setPlayer(player)
@@ -320,9 +322,15 @@ class PlayerActivity() : Activity() {
             else -> 0 // default to Auto if unknown quality
         }
 
-        trackSelector.parameters = trackSelector.buildUponParameters()
-            .setMaxVideoBitrate(videoBitrate)
-            .build()
+        val parametersBuilder = trackSelector.buildUponParameters()
+
+        if (videoBitrate == 0) {
+            parametersBuilder.clearOverridesOfType(C.TRACK_TYPE_VIDEO)
+        } else {
+            parametersBuilder.setMaxVideoBitrate(videoBitrate)
+        }
+
+        trackSelector.parameters = parametersBuilder.build()
     }
 
 
@@ -350,6 +358,11 @@ class PlayerActivity() : Activity() {
         super.onDestroy()
         player!!.pause()
         releasePlayer()
+    }
+
+    override fun onBackPressed() {
+        binaryMessenger?.let { MethodChannel(it, "mahar.com/exoplayer").invokeMethod("callBack", (player!!.currentPosition / 1000L).toString() + "," + (player!!.duration / 1000L).toString()) }
+        super.onBackPressed()
     }
 
 }

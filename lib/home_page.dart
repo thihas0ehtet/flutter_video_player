@@ -20,8 +20,8 @@ class _HomePageState extends State<HomePage> {
     try {
       await platform.invokeMethod('PlayerView', {
         'streamUrl':
-            // "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-            "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8",
+            "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        // "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8",
         'userNumber': 'F13KD',
         'videoName': 'Testing Video (Big Bunny)',
         'currentTimestamp': timestamp.toString(),
