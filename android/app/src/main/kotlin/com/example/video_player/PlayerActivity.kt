@@ -2,12 +2,20 @@ package com.example.video_player
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.pm.ActivityInfo
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.BackgroundColorSpan
+import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -109,6 +117,27 @@ class PlayerActivity() : Activity() {
         logoView.layoutParams = logoViewLayoutParams
 
 
+        // video title
+        val videoTitleView = StrokeTextView(this).apply {
+            text = videoTitle
+            setTextColor(Color.WHITE) // Set fill color to white
+            setStrokeColor(Color.BLACK) // Set stroke color to black
+            setStrokeWidth(2f) // Set stroke width
+        }
+
+        videoTitleView.text = videoTitle
+        val videoTitleLayoutParams = RelativeLayout.LayoutParams(
+            RelativeLayout.LayoutParams.WRAP_CONTENT,
+            RelativeLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            marginStart = 80
+            topMargin = 50
+        }
+        videoTitleLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
+        videoTitleLayoutParams.addRule(RelativeLayout.ALIGN_START)
+        videoTitleView.layoutParams = videoTitleLayoutParams
+
+
         // create User Number TextView
         fun showText(userNumber:String) {
             userNumberView.text=userNumber;
@@ -172,6 +201,7 @@ class PlayerActivity() : Activity() {
 
         relativeLayout.addView(playerView)
         relativeLayout.addView(logoView)
+        relativeLayout.addView(videoTitleView)
 //        relativeLayout.addView(replayButtonView)
         relativeLayout.addView(userNumberView)
 
@@ -217,6 +247,7 @@ class PlayerActivity() : Activity() {
         //Video Name
         val videoName: TextView = playerView.findViewById(R.id.video_name)
         videoName.text = videoTitle
+        videoName.visibility=View.INVISIBLE
 
 
 
@@ -365,4 +396,44 @@ class PlayerActivity() : Activity() {
         super.onBackPressed()
     }
 
+}
+
+
+class StrokeTextView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : androidx.appcompat.widget.AppCompatTextView(context, attrs, defStyleAttr) {
+
+    private var strokeColor: Int = Color.BLACK
+    private var strokeWidth: Float = 4f
+
+    init {
+        // You can initialize custom attributes here if needed
+    }
+
+    fun setStrokeColor(color: Int) {
+        strokeColor = color
+        invalidate()
+    }
+
+    fun setStrokeWidth(width: Float) {
+        strokeWidth = width
+        invalidate()
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        val textColor = currentTextColor
+
+        // Draw the stroke
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = strokeWidth
+        setTextColor(strokeColor)
+        super.onDraw(canvas)
+
+        // Draw the fill
+        paint.style = Paint.Style.FILL
+        setTextColor(textColor)
+        super.onDraw(canvas)
+    }
 }
