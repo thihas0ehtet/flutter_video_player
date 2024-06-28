@@ -62,18 +62,18 @@ class PlayerActivity() : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-       this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
-         val relativeLayout = RelativeLayout(this)
+        val relativeLayout = RelativeLayout(this)
 
 
-         val userNumberView= TextView(this)
+        val userNumberView= TextView(this)
 
         val handler = Handler(Looper.getMainLooper())
 
 
         val binaryMessenger = MessengerHolder.binaryMessenger
-         val userNumber = intent.getStringExtra("userNumber") ?: ""
+        val userNumber = intent.getStringExtra("userNumber") ?: ""
         val currentTimestamp = intent.getStringExtra("currentTimestamp") ?: ""
         val videoTitle = intent.getStringExtra("videoTitle") ?: ""
         val streamUrl = intent.getStringExtra("streamUrl") ?: ""
@@ -216,14 +216,14 @@ class PlayerActivity() : Activity() {
         previousId:String,
         nextId:String,
         adsStreaming:String,
-       methodChannel: MethodChannel
+        methodChannel: MethodChannel
     ) {
 
         val dataSourceFactory: DataSource.Factory =
             DefaultDataSourceFactory(this, Util.getUserAgent(playerView.context, "mahar"))
 
         val mediaSourceFactory: MediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
-              .setAdsLoaderProvider { adsLoader }
+            .setAdsLoaderProvider { adsLoader }
             .setAdViewProvider(playerView)
 
         val trackSelector = DefaultTrackSelector(this)
@@ -264,23 +264,33 @@ class PlayerActivity() : Activity() {
             showQualitySelectionDialog(trackSelector)
         }
 
-         // Previous Button
-         val previousButton: ImageView = playerView.findViewById(R.id.previous)
-         if(previousId==""){
-             previousButton.visibility=View.INVISIBLE
-         }
-         previousButton.setOnClickListener {
-             methodChannel.invokeMethod("previousAction",(player!!.currentPosition/ 1000L).toString()+","+(player!!.duration/ 1000L).toString()+","+previousId)
-         }
- 
-         // Next Button
-         val nextButton: ImageView = playerView.findViewById(R.id.next)
-         if(nextId==""){
-             nextButton.visibility=View.INVISIBLE
-         }
-         nextButton.setOnClickListener {
-             methodChannel.invokeMethod("nextAction",(player!!.currentPosition/ 1000L).toString()+","+(player!!.duration/ 1000L).toString()+","+nextId)
-         }
+        val rewButton: ImageView = playerView.findViewById(R.id.exo_rew)
+        rewButton.setOnClickListener {
+            player!!.seekTo(player!!.currentPosition - 10000)
+        }
+
+        val ffwdButton: ImageView = playerView.findViewById(R.id.exo_ffwd)
+        ffwdButton.setOnClickListener {
+            player!!.seekTo(player!!.currentPosition + 10000)
+        }
+
+        // Previous Button
+        val previousButton: ImageView = playerView.findViewById(R.id.previous)
+        if(previousId==""){
+            previousButton.visibility=View.INVISIBLE
+        }
+        previousButton.setOnClickListener {
+            methodChannel.invokeMethod("previousAction",(player!!.currentPosition/ 1000L).toString()+","+(player!!.duration/ 1000L).toString()+","+previousId)
+        }
+
+        // Next Button
+        val nextButton: ImageView = playerView.findViewById(R.id.next)
+        if(nextId==""){
+            nextButton.visibility=View.INVISIBLE
+        }
+        nextButton.setOnClickListener {
+            methodChannel.invokeMethod("nextAction",(player!!.currentPosition/ 1000L).toString()+","+(player!!.duration/ 1000L).toString()+","+nextId)
+        }
 
         //currentTimestamp
         val timestamp = (currentTimestamp as String?)?.toLong()
@@ -327,29 +337,24 @@ class PlayerActivity() : Activity() {
     private fun showQualitySelectionDialog(trackSelector: DefaultTrackSelector) {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Select Video Quality")
-        val qualityOptions =
-            arrayOf("Auto", "240p","480p","720p", "1080p") // Define your quality options here
+        val qualityOptions = arrayOf("Auto", "240p", "480p", "720p", "1080p")
 
-
-        builder.setSingleChoiceItems(
-            qualityOptions, selectedQualityIndex
-        ) { dialog, which -> // Update track selection based on user input
-            updateTrackSelection(which,trackSelector)
+        builder.setSingleChoiceItems(qualityOptions, selectedQualityIndex) { dialog, which ->
+            updateTrackSelection(which, trackSelector)
             dialog.dismiss()
         }
         builder.create().show()
     }
 
-
-    private fun updateTrackSelection(index: Int,trackSelector: DefaultTrackSelector) {
-        selectedQualityIndex=index;
+    private fun updateTrackSelection(index: Int, trackSelector: DefaultTrackSelector) {
+        selectedQualityIndex = index
 
         val videoBitrate = when (index) {
             0 -> 0
-            1 -> 400000
-            2 -> 1000000
-            3 -> 2500000
-            4 -> 5000000
+            1 -> 500000 // 240p: 500 Kbps
+            2 -> 1000000 // 480p: 1 Mbps
+            3 -> 2500000 // 720p: 2.5 Mbps
+            4 -> 5000000 // 1080p: 5 Mbps
             else -> 0 // default to Auto if unknown quality
         }
 
@@ -359,6 +364,13 @@ class PlayerActivity() : Activity() {
             parametersBuilder.clearOverridesOfType(C.TRACK_TYPE_VIDEO)
         } else {
             parametersBuilder.setMaxVideoBitrate(videoBitrate)
+            // Optionally, you can set a specific minimum and maximum video size to ensure resolution
+            when (index) {
+                1 -> parametersBuilder.setMaxVideoSize(426, 240) // 240p
+                2 -> parametersBuilder.setMaxVideoSize(854, 480) // 480p
+                3 -> parametersBuilder.setMaxVideoSize(1280, 720) // 720p
+                4 -> parametersBuilder.setMaxVideoSize(1920, 1080) // 1080p
+            }
         }
 
         trackSelector.parameters = parametersBuilder.build()
@@ -374,7 +386,7 @@ class PlayerActivity() : Activity() {
         player = null
     }
 
- 
+
     override fun onStop() {
         player!!.pause()
         super.onStop()
